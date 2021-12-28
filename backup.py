@@ -10,30 +10,33 @@ LOG = None
 
 
 def backup(src, dst):
-    if dst.is_file():
-        if not src.exists():
-            dst.unlink()
-            plog(f"Deleted destination file {dst} not represented in source.")
-        elif not dst.exists():
+    if src.is_file():
+        if not dst.exists():
             shutil.copy2(src, dst)
-            plog(f"Created new destination file {dst} from {src}.")
+            plog(f"Created new destination file `{dst}` from `{src}`.")
         elif dst.stat().st_mtime != src.stat().st_mtime:
             shutil.copy2(src, dst)
-            plog(f"Overwrote destination file {dst} with modified file {src}.")
-    elif dst.is_dir():
-        print(f"Backing up: {src} => {dst}")
+            plog(f"Overwrote destination file `{dst}` with modified file `{src}`.")
+    elif src.is_dir():
+        print(f"Backing up: `{src}` => `{dst}`")
         if not dst.exists():
             dst.mkdir()
-            plog(f"Created new destination directory {dst} to mirror {src}.")
+            plog(f"Created new destination directory `{dst}` to mirror `{src}`.")
         src_names = [p.name for p in src.iterdir()]
         dst_diff = [p for p in dst.iterdir() if p.name not in src_names]
         for item in src.iterdir():
             backup(item, dst.joinpath(item.name))
         for item in dst_diff:
             backup(src.joinpath(item.name), item)
-        if not src.exists():
-            dst.rmdir()
-            plog(f"Deleted destination directory {dst} not represented in source.")
+    elif dst.is_file():
+        dst.unlink()
+        plog(f"Deleted destination file `{dst}` since `{src}` does not exist.")
+    elif dst.is_dir():
+        print(f"Cleaning up: `{dst}`")
+        for item in dst.iterdir():
+            backup(src.joinpath(item.name), item)
+        dst.rmdir()
+        plog(f"Deleted destination directory `{dst}` since `{src}` does not exist.")
     return None
 
 
