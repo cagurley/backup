@@ -56,14 +56,14 @@ def close_log():
 def init_log():
     global LOG
     start = dt.datetime.now()
-    LOG = open(BPATH.joinpath('log', f"{start.strftime('%Y%d%m%H%M%S')}.txt"), 'w')
+    LOG = open(BPATH.joinpath('log', f"{start.strftime('%Y%d%m%H%M%S')}.txt"), 'w', encoding='utf-8')
     plog(f"Backup begun at {start.strftime('%I:%M:%S %p')} on {start.strftime('%d %b %Y')}.")
     return None
 
 
 def load_config():
     global CONFIG
-    with open(BPATH.joinpath('config.json')) as f:
+    with open(BPATH.joinpath('config.json'), encoding='utf-8') as f:
         CONFIG = json.load(f)
     CONFIG['src'] = [Path(s).resolve() for s in CONFIG['src']]
     CONFIG['dst'] = Path(CONFIG['dst']).resolve()
